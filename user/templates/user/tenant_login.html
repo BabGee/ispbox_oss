@@ -1,0 +1,31 @@
+
+
+{% load crispy_forms_tags %}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+</head>
+<body style="font-family: sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+
+  <div style="width: 300px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);">
+    <h2>Login</h2>
+
+    <form method="POST" style="margin-bottom: 0;">
+      <div class="form-group">
+        {% csrf_token %}
+        {{form|crispy}}
+      </div>
+      <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 3px;">Log In</button>
+
+      <a href="#" style="display: block; text-align: right; margin-top: 10px;">Forgot Password?</a>
+    </form>
+
+    <p style="margin-top: 10px; text-align: center;">Don't have an account? <a href="{% url 'tenant-register' %}">Register Now</a></p>
+  </div>
+
+</body>
+</html>
