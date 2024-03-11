@@ -1,0 +1,11 @@
+# create_freeradius_virtual_server.yml
+
+- name: Create FreeRADIUS virtual server
+  hosts: localhost
+  connection: local
+  gather_facts: false  
+  tasks:
+    - name: Ensure FreeRADIUS virtual server exists
+      command: >
+        /home/babgee/projects/SYK/django-oss/ispbox_oss/freeradius/ansible/script/freeradius_create_virtual_server.sh {{ tenant_ip }} {{ tenant_port }}
+      # command: echo "hello world"

@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     #thirdparty
     'crispy_forms',
     'crispy_bootstrap4',
+    'rest_framework',
 
     # apps
     'user.apps.UserConfig',
     'tenant.apps.TenantConfig',
+    'freeradius.apps.FreeradiusConfig',
 ]
 
 MIDDLEWARE = [

@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from user import views as user_views
+from freeradius.views import *
 
 from django.conf.urls.static import static
 from django.conf import settings
@@ -38,4 +39,7 @@ urlpatterns = [
     # path('customer/login/',user_views.farmer_login,name='farmer-login'),
 
     path('logout/', user_views.user_logout, name='logout'),
+
+    #freeradius endpoints
+    path('api/create_freeradius_virtual_server/', CreateFreeRADIUSVirtualServerView.as_view(), name='create_freeradius_virtual_server_api'),
 ]
