@@ -13,7 +13,7 @@ class TenantStatus(models.Model):
 class Tenant(models.Model):
 	date_created = models.DateTimeField(auto_now_add=True)
 	date_updated = models.DateTimeField(auto_now=True)	
-	name = models.CharField(max_length=100)
+	name = models.CharField(max_length=100,unique=True)
 	location = models.CharField(max_length=100)
 	ip_address = models.GenericIPAddressField(blank=True, null=True)
 	port = models.PositiveIntegerField(blank=True, null=True)

@@ -5,7 +5,7 @@ from user.models import *
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'tenant', 'access_level', 'status') 
-    list_filter = ('user','tenant', 'access_level', 'status')  
+    list_filter = ('tenant', 'access_level', 'status')  
 
 admin.site.register(Profile, ProfileAdmin)
 
