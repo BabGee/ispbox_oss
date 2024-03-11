@@ -46,8 +46,9 @@ def tenant_signup_view(request):
 			profile.access_level = AccessLevel.objects.get(name='ADMINISTRATOR')
 			profile.status = ProfileStatus.objects.get(name='ACTIVATED')
 			profile.save()
+			
 			# call ansible automation to create virtual server for tenant. pass tenant_ip_address, port
-			username = form.cleaned_data.get('username')
+
 			#login user
 			login(request, user)
 			return redirect('index')
