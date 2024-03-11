@@ -15,9 +15,9 @@ class Tenant(models.Model):
 	date_updated = models.DateTimeField(auto_now=True)	
 	name = models.CharField(max_length=100)
 	location = models.CharField(max_length=100)
-	ip_address = models.GenericIPAddressField()
-	port = models.PositiveIntegerField()
-	status = models.ForeignKey(TenantStatus, on_delete=models.CASCADE) 	
+	ip_address = models.GenericIPAddressField(blank=True, null=True)
+	port = models.PositiveIntegerField(blank=True, null=True)
+	status = models.ForeignKey(TenantStatus, on_delete=models.CASCADE, blank=True, null=True) 	
 
 	def __str__(self):
 		return self.name
