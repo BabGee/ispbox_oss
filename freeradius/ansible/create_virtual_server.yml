@@ -7,5 +7,5 @@
   tasks:
     - name: Ensure FreeRADIUS virtual server exists
       command: >
-        /home/babgee/projects/SYK/django-oss/ispbox_oss/freeradius/ansible/script/freeradius_create_virtual_server.sh {{ tenant_ip }} {{ tenant_port }}
+        /home/babgee/projects/SYK/django-oss/ispbox_oss/freeradius/ansible/script/freeradius_create_virtual_server.sh {{ tenant_ip }} {{ auth_port }} {{ acct_port }}
       # command: echo "hello world"

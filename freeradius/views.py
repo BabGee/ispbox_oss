@@ -6,14 +6,15 @@ from rest_framework import status
 class CreateFreeRADIUSVirtualServerView(APIView):
     def post(self, request):
         tenant_ip = request.data.get('tenant_ip')
-        tenant_port = request.data.get('tenant_port')
+        auth_port = request.data.get('auth_port')
+        acct_port = request.data.get('acct_port')        
 
         # Call Ansible playbook to create FreeRADIUS virtual server
         ansible_command = [
         'ansible-playbook',
         'freeradius/ansible/create_virtual_server.yml',
         '-i', 'localhost,',
-        '--extra-vars', f'tenant_ip={tenant_ip} tenant_port={tenant_port}'
+        '--extra-vars', f'tenant_ip={tenant_ip} auth_port={auth_port} acct_port={acct_port}'
         ]
 
         try:
