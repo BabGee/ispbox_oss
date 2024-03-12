@@ -3,39 +3,42 @@
 # Start port number
 START_PORT=1812
 
-# Check if port argument is provided
-if [ -z "$1" ]; then
-    echo "Usage: $0 <tenant_port>"
+# Check if tenant IP and port arguments are provided
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: sudo $0 <tenant_ip> <tenant_port>"
     exit 1
 fi
 
-# Input port
-TENANT_PORT=$1
-
-# Calculate tenant IP based on provided port
-# Starting from 1812 and incrementing by 1 for each port
-IP_LAST_OCTET=$((TENANT_PORT - START_PORT + 1))
-TENANT_IP="10.0.0.$IP_LAST_OCTET"
+# Tenant IP and port from command line arguments
+TENANT_IP="$1"
+TENANT_PORT="$2"
 
 # Configuration file for FreeRADIUS virtual server
-VIRTUAL_SERVER_CONF="/etc/freeradius/3.0/sites-available/tenant_$TENANT_IP"
+VIRTUAL_SERVER_CONF="/etc/freeradius/3.0/sites-available/tenant_$TENANT_PORT"
 
 # Create virtual server configuration
-cat << EOF > "$VIRTUAL_SERVER_CONF"
+sudo tee "$VIRTUAL_SERVER_CONF" > /dev/null <<EOF
 server {
     listen {
         ipaddr = $TENANT_IP
-        tenant_port = $TENANT_PORT
+        port = $TENANT_PORT
+        type = auth
+    }
+
+    listen {
+        ipaddr = $TENANT_IP
+        port = $((TENANT_PORT + 1))
+        type = acct
     }
     ...
-    # Add more configurations as needed
+    # Add more configurations
 }
 EOF
 
 # Enable virtual server
-ln -s "$VIRTUAL_SERVER_CONF" "/etc/freeradius/3.0/sites-enabled/tenant_$TENANT_IP"
+sudo ln -s "$VIRTUAL_SERVER_CONF" "/etc/freeradius/3.0/sites-enabled/tenant_$TENANT_PORT"
 
 # Restart FreeRADIUS service to apply changes
-systemctl restart freeradius
+sudo systemctl restart freeradius
 
 echo "FreeRADIUS virtual server for tenant $TENANT_IP created successfully on port $TENANT_PORT."
