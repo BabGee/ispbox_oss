@@ -16,12 +16,16 @@ from tenant.models import *
 
 from django.contrib.auth.forms import AuthenticationForm   
 
+from django.db import transaction
 
+from freeradius.views import *
 
 User = get_user_model()
 
 def tenant_signup_view(request):
 	if request.method == 'POST':
+		tenant_data = {}
+		tenant_data['ip_address'] = '127.0.0.1'
 		form = forms.TenantSignUpForm(request.POST)
 		if form.is_valid():
 			user = form.save(commit=False)
@@ -30,14 +34,10 @@ def tenant_signup_view(request):
 			user.email = form.cleaned_data.get('email')
 			user.phone_number = form.cleaned_data.get('phone_number')
 			user.save()
+
 			tenant_name = form.cleaned_data.get('tenant_name')
 			tenant_location = form.cleaned_data.get('tenant_location')
-			# ip_address = ''
-            # port = ''
 			tenant = Tenant.objects.create(name=tenant_name, location=tenant_location)
-			# have an automation that auto assigns ip_address and port to tenants. ip_address same port differemt; port increments +1
-			# tenant.ip_address = form.cleaned_data.get('ip_address')
-			# tenant.port = form.cleaned_data.get('tenant_port')
 			tenant.status = TenantStatus.objects.get(name="ACTIVE")
 			tenant.save()
 			# update Profile with Tenant, access level, status
@@ -46,8 +46,40 @@ def tenant_signup_view(request):
 			profile.access_level = AccessLevel.objects.get(name='ADMINISTRATOR')
 			profile.status = ProfileStatus.objects.get(name='ACTIVATED')
 			profile.save()
-			
-			# call ansible automation to create virtual server for tenant. pass tenant_ip_address, port
+
+			with transaction.atomic():
+				# Find two consecutive available ports
+				available_ports = Port.objects.filter(is_allocated=False).order_by('port_number')[:2]
+
+				if available_ports.count() == 2:
+					assigned_ports = []
+					for port in available_ports:
+						port.is_allocated = True
+						port.save()
+						assigned_ports.append(port.port_number)
+
+						# Assign specific purpose (optional)
+						if port.port_number == assigned_ports[0]:
+							tenant_data['freeradius_auth_port'] = port.port_number
+						else:
+							tenant_data['freeradius_acct_port'] = port.port_number
+
+					TenantPortAssignment.objects.create(
+						tenant=tenant, 
+						port=available_ports[0]  # Assign first port to the main relationship
+					)
+					# Call CreateFreeRADIUSVirtualServerView with tenant_data
+					view = CreateFreeRADIUSVirtualServerView()
+					response = view.dispatch(request=request, tenant_data=tenant_data)
+					print(f'RESPONSE AFTER ANSIBLE: {response.status_code}')
+
+					# Handle the response from CreateFreeRADIUSVirtualServerView
+					if response.status_code == 200:
+						print("Success Ansible Automation")
+						pass
+					else:
+						print("Failed Ansible Automation")
+						pass
 
 			#login user
 			login(request, user)
