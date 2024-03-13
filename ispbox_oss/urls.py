@@ -30,16 +30,17 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('tenant.urls')),
-    #users sign up
+
+    #User App
+    #Sign up
     path('user/signup/tenant/', user_views.tenant_signup_view, name='tenant-register'),
     # path('user/signup/customer/',user_views.customer_signup_view,name='farmer-register'),
-
-    #users login 
+    #Login 
     path('tenant/login/',user_views.tenant_login,name='tenant-login'),
     # path('customer/login/',user_views.farmer_login,name='farmer-login'),
-
+    #Logout
     path('logout/', user_views.user_logout, name='logout'),
 
-    #freeradius endpoints
-    path('api/create_freeradius_virtual_server/', CreateFreeRADIUSVirtualServerView.as_view(), name='create_freeradius_virtual_server_api'),
+    #Freeradius API endpoint
+    path('api/freeradius/', include('freeradius.urls')),
 ]

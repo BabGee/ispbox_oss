@@ -22,77 +22,89 @@ from freeradius.views import *
 
 User = get_user_model()
 
+import json
+import requests
+# from django.urls import reverse
+
+# FreeRadius API urls
+# freeradius_url_name = 'create_freeradius_virtual_server_api'
+# freeradius_url = reverse(freeradius_url_name)
+api_base_url = 'http://localhost:8000'
+# freeradius_full_url = api_base_url + freeradius_url
+
 def tenant_signup_view(request):
-	if request.method == 'POST':
-		tenant_data = {}
-		tenant_data['ip_address'] = '127.0.0.1'
-		form = forms.TenantSignUpForm(request.POST)
-		if form.is_valid():
-			user = form.save(commit=False)
-			user.first_name = form.cleaned_data.get('first_name')
-			user.last_name = form.cleaned_data.get('last_name')
-			user.email = form.cleaned_data.get('email')
-			user.phone_number = form.cleaned_data.get('phone_number')
-			user.save()
+    if request.method == 'POST':
+        payload = {}
+        payload['ip_address'] = '127.0.0.1'
+        form = forms.TenantSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.first_name = form.cleaned_data.get('first_name')
+            user.last_name = form.cleaned_data.get('last_name')
+            user.email = form.cleaned_data.get('email')
+            user.phone_number = form.cleaned_data.get('phone_number')
+            user.save()
 
-			tenant_name = form.cleaned_data.get('tenant_name')
-			tenant_location = form.cleaned_data.get('tenant_location')
-			tenant = Tenant.objects.create(name=tenant_name, location=tenant_location)
-			tenant.status = TenantStatus.objects.get(name="ACTIVE")
-			tenant.save()
-			# update Profile with Tenant, access level, status
-			profile = Profile.objects.get(user=user)
-			profile.tenant = tenant
-			profile.access_level = AccessLevel.objects.get(name='ADMINISTRATOR')
-			profile.status = ProfileStatus.objects.get(name='ACTIVATED')
-			profile.save()
+            tenant_name = form.cleaned_data.get('tenant_name')
+            tenant_location = form.cleaned_data.get('tenant_location')
+            tenant = Tenant.objects.create(name=tenant_name, location=tenant_location)
+            tenant.status = TenantStatus.objects.get(name="ACTIVE")
+            tenant.save()
 
-			with transaction.atomic():
-				# Find two consecutive available ports
-				available_ports = Port.objects.filter(is_allocated=False).order_by('port_number')[:2]
+            profile = Profile.objects.get(user=user)
+            profile.tenant = tenant
+            profile.access_level = AccessLevel.objects.get(name='ADMINISTRATOR')
+            profile.status = ProfileStatus.objects.get(name='ACTIVATED')
+            profile.save()
 
-				if available_ports.count() == 2:
-					assigned_ports = []
-					for port in available_ports:
-						port.is_allocated = True
-						port.save()
-						assigned_ports.append(port.port_number)
+            with transaction.atomic():
+                available_ports = Port.objects.filter(is_allocated=False).order_by('port_number')[:2]
 
-						# Assign specific purpose (optional)
-						if port.port_number == assigned_ports[0]:
-							tenant_data['freeradius_auth_port'] = port.port_number
-						else:
-							tenant_data['freeradius_acct_port'] = port.port_number
+                if available_ports.count() == 2:
+                    assigned_ports = []
+                    for port in available_ports:
+                        port.is_allocated = True
+                        port.save()
+                        assigned_ports.append(port.port_number)
 
-					TenantPortAssignment.objects.create(
-						tenant=tenant, 
-						port=available_ports[0]  # Assign first port to the main relationship
-					)
-					# Call CreateFreeRADIUSVirtualServerView with tenant_data
-					view = CreateFreeRADIUSVirtualServerView()
-					response = view.dispatch(request=request, tenant_data=tenant_data)
-					print(f'RESPONSE AFTER ANSIBLE: {response.status_code}')
+                        if port.port_number == assigned_ports[0]:
+                            payload['freeradius_auth_port'] = port.port_number
+                        else:
+                            payload['freeradius_acct_port'] = port.port_number
 
-					# Handle the response from CreateFreeRADIUSVirtualServerView
-					if response.status_code == 200:
-						print("Success Ansible Automation")
-						pass
-					else:
-						print("Failed Ansible Automation")
-						pass
+                    TenantPortAssignment.objects.create(
+                        tenant=tenant, 
+                        port=available_ports[0]
+                    )
 
-			#login user
-			login(request, user)
-			return redirect('index')
+                    # Call CreateFreeRADIUSVirtualServerView with payload
+                    response = requests.post(
+                        api_base_url + '/api/freeradius/create_freeradius_virtual_server/',
+                        json={'payload': payload}  # Pass payload as JSON payload
+                    )    
 
-	else:
-		form = forms.TenantSignUpForm()
+                    print(f'RESPONSE AFTER ANSIBLE: {response.status_code}')
 
-	context = {
-		'form':form
-	}
+                    # Handle the response from CreateFreeRADIUSVirtualServerView
+                    if response.status_code == 200:
+                        print("Success Ansible Automation")
+                        pass
+                    else:
+                        print("Failed Ansible Automation")
+                        pass
 
-	return render(request, 'user/tenant_register.html', context)			
+            login(request, user)
+            return redirect('index')
+
+    else:
+        form = forms.TenantSignUpForm()
+
+    context = {
+        'form':form
+    }
+
+    return render(request, 'user/tenant_register.html', context)
+			
 
 
 # def customer_signup_view(request):
