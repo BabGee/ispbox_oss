@@ -40,6 +40,7 @@ class Profile(models.Model):
 	tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, blank=True, null=True) 
 	access_level = models.ForeignKey(AccessLevel, on_delete=models.CASCADE, blank=True, null=True)
 	status = models.ForeignKey(ProfileStatus, on_delete=models.CASCADE, blank=True, null=True)
+	
 	def __str__(self):
 		return self.user.username     
 
