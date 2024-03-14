@@ -32,6 +32,9 @@ import requests
 api_base_url = 'http://localhost:8000'
 # freeradius_full_url = api_base_url + freeradius_url
 
+
+################################ use oauth2.o for User SignUp and Login ############################# TBD ############
+
 def tenant_signup_view(request):
     if request.method == 'POST':
         payload = {}
