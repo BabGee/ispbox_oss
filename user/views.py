@@ -116,24 +116,19 @@ def tenant_signup_view(request):
 # 			user.first_name = form.cleaned_data.get('first_name')
 # 			user.last_name = form.cleaned_data.get('last_name')
 # 			user.email = form.cleaned_data.get('email')
-# 			user.phone_number = form.cleaned_data.get('phone_number')
+# 			tenant= form.cleaned_data.get('tenant') # choiceField
 # 			user.save()
-# 			farmer = Farmer.objects.create(user=user)
-# 			farmer.farm_name = form.cleaned_data.get('farm_name')
-# 			farmer.location = form.cleaned_data.get('location')
-# 			farmer.save()
-# 			username = form.cleaned_data.get('username')
-# 			messages.success(request, f'Account created for {username}. You can now login')
-# 			return redirect('farmer-login')
+
+# 			return redirect('customer-login')
 
 # 	else:
-# 		form = forms.FarmerSignUpForm()
+# 		form = forms.CustomerSighUpForm()
 
 # 	context = {
 # 		'form':form
 # 	}
 
-# 	return render(request, 'user/farmerregister.html', context)
+# 	return render(request, 'user/customerregister.html', context)
 
 
 
@@ -149,12 +144,6 @@ def tenant_login(request):
 			if user.is_authenticated:
 				login(request, user)
 				return redirect('index') # TEnant Portal
-			# elif user.is_authenticated and user.is_farmer:
-			# 	messages.warning(request, 'Kindly login as farmer')
-			# 	return redirect('farmer-login')
-			# elif user.is_authenticated and user.is_student:
-			# 	messages.warning(request, 'Kindly login as student')
-			# 	return redirect('student-login')
 				    
 		else:
 			messages.error(request, 'invalid Credentials')
@@ -167,21 +156,9 @@ def tenant_login(request):
 # 		username = request.POST['username']
 # 		password = request.POST['password']
 # 		user = authenticate(username=username, password=password)
-# 		if user is not None:
-# 			if user.is_authenticated and user.is_farmer:
-# 				login(request, user)
-# 				return redirect('farmer-portal')
-# 			elif user.is_authenticated and user.is_vet_officer:
-# 				messages.warning(request, 'Kindly login as Vet Officer')
-# 				return redirect('vet-login')
-# 			# elif user.is_authenticated and user.is_student:
-# 			# 	messages.warning(request, 'Kindly login as student')
-# 			# 	return redirect('student-login')
 				    
-# 		else:
-#  			messages.error(request, 'invalid Credentials')
     
-# 	return render(request, 'user/farmerlogin.html', {'form':form})
+# 	return render(request, 'user/custoemrlogin.html', {'form':form})
 
 
 def user_logout(request):
