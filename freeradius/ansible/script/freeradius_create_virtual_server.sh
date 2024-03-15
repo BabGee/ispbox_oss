@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Start port number
-START_PORT=1812
-
 # Check if tenant IP and both ports arguments are provided
 if [ -z "$1" ] || [ -z "$2" ]; then
     echo "Usage: sudo $0 <tenant_ip> <auth_port> <acct_port>"
