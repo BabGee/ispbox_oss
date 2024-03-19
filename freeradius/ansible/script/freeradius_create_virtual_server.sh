@@ -28,8 +28,10 @@ server {
         port = $ACCT_PORT
         type = acct
     }
-    ...
-    # Add more configurations
+    client {
+        file = /etc/freeradius/3.0/radcheckfiles/tenant_$AUTH_PORT.txt
+        
+    }
 }
 EOF
 
