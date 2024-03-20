@@ -28,11 +28,14 @@ server {
         port = $ACCT_PORT
         type = acct
     }
-    client {
-        file = /etc/freeradius/3.0/radcheckfiles/tenant_$AUTH_PORT.txt
-        
+    authenticate {
+        # Use the files module to read from the text file
+        files {
+            # Specify the path to the file containing usernames and passwords
+            usersfile = /home/babgee/projects/SYK/django-oss/ispbox_oss/tenant_auth_files/tenant_1832.txt
+        }
     }
-}
+}      
 EOF
 
 # Enable virtual server

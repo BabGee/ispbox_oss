@@ -95,3 +95,6 @@ GitHub.sublime-settings
 *.ipynb
 
 migrations
+
+# tenant_auth_files
+tenant_18*

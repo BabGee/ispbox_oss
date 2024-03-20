@@ -5,7 +5,7 @@ from rest_framework import status
 
 from freeradius.utils import generate_random_string, generate_random_password
 
-from freeradius.radius_auth import authenticate_radius_user
+from freeradius.radius_auth import *
 
 import bcrypt
 
@@ -68,7 +68,7 @@ class CreateUserInRadcheckView(APIView):
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
             # Create user record in separate radcheck file for the tenant
-            # create_user_in_radcheck_file(tenant_id, username, hashed_password)
+            create_user_in_radcheck_file(tenant_id, username, hashed_password)
 
             # Optionally, persist user information in your radcheck table if needed
             # user = User.objects.create(username=username, tenant_id=tenant_id, password=hashed_password)
@@ -97,6 +97,7 @@ class LoginWithFreeRADIUSView(APIView):
             return Response({'status': 'error', 'message': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            print("HERE 1")
             auth_result = authenticate_radius_user(username, password, tenant_port)
 
             if auth_result.code == 'Access-Accept':
@@ -107,4 +108,60 @@ class LoginWithFreeRADIUSView(APIView):
                 return Response({'status': 'error', 'message': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             return Response({'status': 'error', 'message': f"Error authenticating user: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
+
+
+# from django.http import JsonResponse
+# from django.views import View
+# from pyrad.client import Client
+# from pyrad.dictionary import Dictionary
+# from pyrad.packet import AccessRequest
+
+# class RadiusAuthView(View):
+#     def post(self, request):
+#         # Get user credentials from request data
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+
+#         # RADIUS server configuration
+#         radius_server = "radius.example.com"
+#         radius_secret = "radius_secret"
+
+#         # Create a RADIUS client
+#         radius_client = Client(server=radius_server, secret=radius_secret, dict=Dictionary("/path/to/dictionary"))
+
+#         # Create an Access-Request packet
+#         access_request = radius_client.CreateAuthPacket(code=1)
+#         access_request["User-Name"] = username
+#         access_request["User-Password"] = password
+
+#         try:
+#             # Send the Access-Request packet to the RADIUS server
+#             radius_client.SendPacket(access_request)
+
+#             # Wait for a response from the server
+#             response = radius_client.ReceivePacket()
+
+#             if response is not None:
+#                 if response.code == 2:  # Access-Accept
+#                     return JsonResponse({"authenticated": True})
+#                 elif response.code == 3:  # Access-Reject
+#                     return JsonResponse({"authenticated": False, "message": response.get_reply_message()})
+#                 else:
+#                     return JsonResponse({"error": "Unexpected response code: " + str(response.code)})
+#             else:
+#                 return JsonResponse({"error": "No response received from RADIUS server"})
+
+#         except Exception as e:
+#             return JsonResponse({"error": "Error occurred during authentication: " + str(e)})
+
+
 

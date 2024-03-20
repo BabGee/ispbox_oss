@@ -29,12 +29,47 @@ import radius
 
 def authenticate_radius_user(username, password, tenant_port):
     secret = 'testing123'
-    host='radius'
+    host='localhost'
+    print("HERE 2")
 
     r = radius.Radius(secret, host=host, port=tenant_port)
+    print(f"HERE 3: {r}")
 
     if r.authenticate(username, password):
+        print("HERE 4")
         print("Authentication successful!")
     else:
+        print("HERE 5")
         print(f"Authentication failed")
+
+
+
+import os
+from tenant.models import *
+
+def create_user_in_radcheck_file(tenant_id, username, hashed_password):
+    """
+    Creates a user record in a separate radcheck file for the given tenant.
+
+    Args:
+        tenant_id (int): The ID of the tenant.
+        username (str): The username for the user.
+        hashed_password (str): The hashed password for the user (e.g., bcrypt hash).
+    """
+    tenant = Tenant.objects.get(id=tenant_id)
+    tenant_port=TenantPortAssignment.objects.get(tenant=tenant).port
+
+    radcheck_file_path = f"/home/babgee/projects/SYK/django-oss/ispbox_oss/tenant_auth_files/tenant_{tenant_port}_auth.txt"
+
+    try:
+        # Open the file in append mode to add new user records
+        with open(radcheck_file_path, "a") as file:
+            # Write user data in a format compatible with your FreeRADIUS configuration
+            # (usually username, password separated by a space)
+            # file.write(f"{username} {hashed_password}\n")
+            file.write(f"{username} {hashed_password}\n")
+
+    except OSError as e:
+        print(f"Error creating user in radcheck file: {e}")
+       
      
