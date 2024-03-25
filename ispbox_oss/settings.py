@@ -86,7 +86,16 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'freeradius': {
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': 'radius',  
+        'USER': 'sampleuser',
+        'PASSWORD': 'samplepassword', 
+        'HOST': 'localhost',  
+        'PORT': '3306'
     }
+
 }
 
 
@@ -137,3 +146,5 @@ AUTH_USER_MODEL = 'user.User'
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+DATABASE_ROUTERS = ['freeradius.routers.FreeRadiusRouter']

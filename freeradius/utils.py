@@ -6,7 +6,7 @@ def generate_random_string(length=8):
     Generates a random string of specified length using recommended methods for security.
     """
 
-    alphabet = string.ascii_letters + string.digits + string.punctuation  # Include a wider range of characters
+    alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for i in range(length))
 
 def generate_random_password(length=16):

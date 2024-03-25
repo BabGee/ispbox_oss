@@ -27,9 +27,30 @@
 
 import radius
 
+import os
+from tenant.models import *
+
+
+from django.contrib import messages
+
+# def authenticate_radius_user(username, password, tenant_port):
+#     secret = 'testing123'
+#     host='localhost'
+#     print("HERE 2")
+
+#     r = radius.Radius(secret, host=host, port=tenant_port)
+#     print(f"HERE 3: {r}")
+
+#     if r.authenticate(username, password):
+#         print("HERE 4")
+#         print("Authentication successful!")
+#     else:
+#         print("HERE 5")
+#         print(f"Authentication failed")
+
 def authenticate_radius_user(username, password, tenant_port):
-    secret = 'testing123'
     host='localhost'
+    secret ='testing123'
     print("HERE 2")
 
     r = radius.Radius(secret, host=host, port=tenant_port)
@@ -38,14 +59,13 @@ def authenticate_radius_user(username, password, tenant_port):
     if r.authenticate(username, password):
         print("HERE 4")
         print("Authentication successful!")
+        return messages.SUCCESS
     else:
         print("HERE 5")
-        print(f"Authentication failed")
+        print(f"Authentication failed")   
+        return messages.ERROR     
 
 
-
-import os
-from tenant.models import *
 
 def create_user_in_radcheck_file(tenant_id, username, hashed_password):
     """
