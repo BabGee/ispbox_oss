@@ -1,67 +1,20 @@
-# from radius import RadiusClient
-
-# def authenticate_radius_user(username, password, tenant_port):
-#     # Replace with your FreeRADIUS server details
-#     server_address = "127.0.0.1:8000"
-#     server_secret = "testing123"
-
-#     # Create a RadiusClient instance
-#     client = RadiusClient(server_address, server_secret, auth_port=tenant_port)  # Tenant RADIUS auth port
-
-#     # Build the authentication request packet
-#     auth_packet = client.auth_packet(
-#         code=client.CODE_ACCESS_REQUEST,
-#         User_Name=username,
-#         NAS_Port=tenant_port  # Include tenant's port
-#     )
-
-#     # Send the authentication request and receive the response
-#     response = client.send(auth_packet)
-
-#     # Check the response code for success
-#     if response.code == client.CODE_ACCESS_ACCEPT:
-#         print("Authentication successful!")
-#     else:
-#         print(f"Authentication failed: Code {response.code}")
-
-
 import radius
 
-import os
 from tenant.models import *
 
 
 from django.contrib import messages
 
-# def authenticate_radius_user(username, password, tenant_port):
-#     secret = 'testing123'
-#     host='localhost'
-#     print("HERE 2")
-
-#     r = radius.Radius(secret, host=host, port=tenant_port)
-#     print(f"HERE 3: {r}")
-
-#     if r.authenticate(username, password):
-#         print("HERE 4")
-#         print("Authentication successful!")
-#     else:
-#         print("HERE 5")
-#         print(f"Authentication failed")
-
 def authenticate_radius_user(username, password, tenant_port):
-    host='localhost'
-    secret ='testing123'
-    print("HERE 2")
+    host='localhost' # change on production
+    secret ='testing123' # change for production server
 
     r = radius.Radius(secret, host=host, port=tenant_port)
-    print(f"HERE 3: {r}")
 
     if r.authenticate(username, password):
-        print("HERE 4")
         print("Authentication successful!")
         return messages.SUCCESS
     else:
-        print("HERE 5")
         print(f"Authentication failed")   
         return messages.ERROR     
 
@@ -74,7 +27,7 @@ def create_user_in_radcheck_file(tenant_id, username, hashed_password):
     Args:
         tenant_id (int): The ID of the tenant.
         username (str): The username for the user.
-        hashed_password (str): The hashed password for the user (e.g., bcrypt hash).
+        hashed_password (str): The hashed password for the user (e.g., bcrypt hash). Clear-Text Password can also be saved in this case(FreeRadius)
     """
     tenant = Tenant.objects.get(id=tenant_id)
     tenant_port=TenantPortAssignment.objects.get(tenant=tenant).port

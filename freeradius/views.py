@@ -56,17 +56,14 @@ class CreateUserInRadcheckView(APIView):
     """
 
     def post(self, request, tenant_id=None):
-        print("HERE 1")
         """
         Handle POST requests for creating a user.
         """
         if tenant_id is None:
-            print("HERE 2")
             # Handle error or return appropriate response if tenant_id is missing
             return Response({'status': 'error', 'message': 'Missing tenant ID'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            print("HERE 3")
             # Extract username from request data (optional)
             username = request.data.get('username')
             # If username not provided, generate a unique one
@@ -77,8 +74,8 @@ class CreateUserInRadcheckView(APIView):
             password = generate_random_password()
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             payload = {"username": username, "value":password}
-            # create user information in radcheck table 
-            # Call AddUserAPI with payload
+
+            # create user information in FreeRadius radcheck table by calling AddUserAPI with payload
             response = requests.post(
                 api_base_url + '/api/freeradius/add-user/', data=payload 
             )    
@@ -113,13 +110,12 @@ class LoginWithFreeRADIUSView(APIView):
             return Response({'status': 'error', 'message': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            print("HERE 1")
             auth_result = authenticate_radius_user(username, password, tenant_port)
 
             if auth_result == 25:
                 # Successful authentication
                 return Response({'status': 'success', 'message': 'Login successful'}, status=status.HTTP_200_OK)
-            else: #code 40
+            else: #or code 40
                 # Authentication failed
                 return Response({'status': 'error', 'message': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
@@ -154,57 +150,3 @@ class AddUserAPI(APIView):
             return Response({'success': True}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
-
-# from django.http import JsonResponse
-# from django.views import View
-# from pyrad.client import Client
-# from pyrad.dictionary import Dictionary
-# from pyrad.packet import AccessRequest
-
-# class RadiusAuthView(View):
-#     def post(self, request):
-#         # Get user credentials from request data
-#         username = request.POST.get('username')
-#         password = request.POST.get('password')
-
-#         # RADIUS server configuration
-#         radius_server = "radius.example.com"
-#         radius_secret = "radius_secret"
-
-#         # Create a RADIUS client
-#         radius_client = Client(server=radius_server, secret=radius_secret, dict=Dictionary("/path/to/dictionary"))
-
-#         # Create an Access-Request packet
-#         access_request = radius_client.CreateAuthPacket(code=1)
-#         access_request["User-Name"] = username
-#         access_request["User-Password"] = password
-
-#         try:
-#             # Send the Access-Request packet to the RADIUS server
-#             radius_client.SendPacket(access_request)
-
-#             # Wait for a response from the server
-#             response = radius_client.ReceivePacket()
-
-#             if response is not None:
-#                 if response.code == 2:  # Access-Accept
-#                     return JsonResponse({"authenticated": True})
-#                 elif response.code == 3:  # Access-Reject
-#                     return JsonResponse({"authenticated": False, "message": response.get_reply_message()})
-#                 else:
-#                     return JsonResponse({"error": "Unexpected response code: " + str(response.code)})
-#             else:
-#                 return JsonResponse({"error": "No response received from RADIUS server"})
-
-#         except Exception as e:
-#             return JsonResponse({"error": "Error occurred during authentication: " + str(e)})
-
-
-
